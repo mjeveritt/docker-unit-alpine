@@ -12,8 +12,8 @@ ENV PATH=$PATH:/srv/bin
 
 LABEL org.opencontainers.image.authors=support@privatebin.org \
       org.opencontainers.image.vendor=PrivateBin \
-      org.opencontainers.image.documentation=https://github.com/PrivateBin/docker-nginx-fpm-alpine/blob/master/README.md \
-      org.opencontainers.image.source=https://github.com/PrivateBin/docker-nginx-fpm-alpine \
+      org.opencontainers.image.documentation=https://github.com/PrivateBin/docker-unit-alpine/blob/master/README.md \
+      org.opencontainers.image.source=https://github.com/PrivateBin/docker-unit-alpine \
       org.opencontainers.image.licenses=zlib-acknowledgement \
       org.opencontainers.image.version=${RELEASE}
 
@@ -33,18 +33,12 @@ RUN \
     fi \
 # Install dependencies
     && apk upgrade --no-cache \
-    && apk add --no-cache gnupg git nginx php81 php81-fpm php81-gd php81-opcache \
-        s6 tzdata ${ALPINE_PACKAGES} ${ALPINE_COMPOSER_PACKAGES} \
-# Remove (some of the) default nginx config
-    && rm -f /etc/nginx.conf /etc/nginx/http.d/default.conf /etc/php81/php-fpm.d/www.conf \
-    && rm -rf /etc/nginx/sites-* \
-# Ensure nginx logs, even if the config has errors, are written to stderr
-    && ln -s /dev/stderr /var/log/nginx/error.log \
+    && apk add --no-cache gnupg git php81 php81-gd php81-opcache tzdata \
+        unit-php81 ${ALPINE_PACKAGES} ${ALPINE_COMPOSER_PACKAGES} \
 # Install PrivateBin
     && export GNUPGHOME="$(mktemp -d -p /tmp)" \
     && gpg2 --list-public-keys || /bin/true \
     && wget -qO - https://privatebin.info/key/release.asc | gpg2 --import - \
-    && rm -rf /var/www/* \
     && cd /tmp \
     && if expr "${RELEASE}" : '[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}$' >/dev/null ; then \
          echo "getting release ${RELEASE}"; \
@@ -61,7 +55,8 @@ RUN \
         && ln -s $(which php81) /usr/local/bin/php \
         && php composer-installer.php --install-dir=/usr/local/bin --filename=composer ;\
     fi \
-    && cd /var/www \
+    && mkdir -p /srv/data /srv/www \
+    && cd /srv/www \
     && tar -xzf /tmp/${RELEASE}.tar.gz --strip 1 \
     && if [ -n "${COMPOSER_PACKAGES}" ] ; then \
         wget -q ${RAWURL}${RELEASE}/composer.json \
@@ -71,31 +66,30 @@ RUN \
         && composer update --no-dev --optimize-autoloader \
         rm composer.* /usr/local/bin/* ;\
     fi \
-    && rm *.md cfg/conf.sample.php \
+    && rm *.md cfg/conf.sample.php .htaccess* */.htaccess \
     && mv bin cfg lib tpl vendor /srv \
-    && mkdir -p /srv/data \
     && sed -i "s#define('PATH', '');#define('PATH', '/srv/');#" index.php \
-# Support running s6 under a non-root user
-    && mkdir -p /etc/s6/services/nginx/supervise /etc/s6/services/php-fpm81/supervise \
-    && mkfifo \
-        /etc/s6/services/nginx/supervise/control \
-        /etc/s6/services/php-fpm81/supervise/control \
-    && chown -R ${UID}:${GID} /etc/s6 /run /srv/* /var/lib/nginx /var/www \
-    && chmod o+rwx /run /var/lib/nginx /var/lib/nginx/tmp \
+# Support running unit under a non-root user
+    && chown -R ${UID}:${GID} /run /srv/* /var/lib/unit \
 # Clean up
     && gpgconf --kill gpg-agent \
     && rm -rf /tmp/* \
     && apk del --no-cache gnupg git ${ALPINE_COMPOSER_PACKAGES}
 
+COPY --chown=${UID}:${GID} conf.json /var/lib/unit/
 COPY etc/ /etc/
 
-WORKDIR /var/www
+WORKDIR /srv/www
 # user nobody, group www-data
 USER ${UID}:${GID}
 
 # mark dirs as volumes that need to be writable, allows running the container --read-only
-VOLUME /run /srv/data /tmp /var/lib/nginx/tmp
+VOLUME /run /srv/data /tmp /var/lib/unit
 
 EXPOSE 8080
 
-ENTRYPOINT ["/etc/init.d/rc.local"]
+HEALTHCHECK CMD ["wget", "-qO/dev/null", "http://localhost:8080"]
+
+ENTRYPOINT ["/usr/sbin/unitd"]
+
+CMD ["--no-daemon", "--log", "/dev/stdout", "--tmp", "/tmp"]

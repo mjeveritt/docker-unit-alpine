@@ -1,0 +1,59 @@
+{
+    "listeners": {
+        "*:8080": {
+            "pass": "routes"
+        }
+    },
+    "routes": [
+        {
+            "match": {
+                "uri": ["/", "/shortenviayourls"]
+            },
+            "action": {
+                "pass": "applications/privatebin"
+            }
+        },
+        {
+            "match": {
+                "uri": "/favicon.ico"
+            },
+            "action": {
+                "share": "/srv/www/img/favicon.ico"
+            }
+        },
+        {
+            "action": {
+                "share": "/srv/www$uri"
+            }
+        }
+    ],
+    "applications": {
+        "privatebin": {
+            "type": "php",
+            "root": "/srv/",
+            "script": "www/index.php",
+            "options": {
+                "file": "/etc/php81/php.ini"
+            },
+            "processes": {
+                "max": 5,
+                "spare": 2,
+                "idle_timeout": 35
+            }
+        }
+    },
+    "settings": {
+        "http": {
+            "max_body_size": 15728640,
+            "static": {
+                "mime_types": {
+                    "application/wasm": [".wasm"]
+                }
+            }
+        }
+    },
+    "access_log": {
+        "path": "/dev/stdout",
+        "format": "$remote_addr - - [$time_local] \"$request_line\" $status $body_bytes_sent \"$header_referer\" \"$header_user_agent\" \"$header_x_forwarded_for\""
+    }
+}
