@@ -77,7 +77,6 @@ RUN \
     && apk del --no-cache gnupg git ${ALPINE_COMPOSER_PACKAGES}
 
 COPY --chown=${UID}:${GID} conf.json /var/lib/unit/
-COPY etc/ /etc/
 
 WORKDIR /srv/www
 # user nobody, group www-data
