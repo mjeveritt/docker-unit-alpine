@@ -1,16 +1,26 @@
-# PrivateBin on Nginx, php-fpm & Alpine
+# PrivateBin on Nginx Unit & Alpine
 
 **PrivateBin** is a minimalist, open source online [pastebin](https://en.wikipedia.org/wiki/Pastebin) where the server has zero knowledge of pasted data. Data is encrypted and decrypted in the browser using 256bit AES in [Galois Counter mode](https://en.wikipedia.org/wiki/Galois/Counter_Mode).
 
-This repository contains the Dockerfile and resources needed to create a docker image with a pre-installed PrivateBin instance in a secure default configuration. The images are based on the docker hub Alpine image, extended with the GD module required to generate discussion avatars and the Nginx webserver to serve static JavaScript libraries, CSS & the logos. All logs of php-fpm and Nginx (access & errors) are forwarded to docker logs.
+This repository contains the Dockerfile and resources needed to create a docker image with a pre-installed PrivateBin instance in a secure default configuration. The images are based on the docker hub Alpine image, extended with the GD module required to generate discussion avatars and the Nginx Unit application server to serve static JavaScript libraries, CSS & the logos as well as dynamic PHP rendered HTML. All logs of Nginx Unit (access & errors) are forwarded to docker logs.
+
+## Limitations
+
+Compared to the [Nginx web server, php-fpm & Alpine images](https://github.com/PrivateBin/docker-nginx-fpm-alpine), these are smaller, but lack the following features:
+
+- missing [headers that mitigate problems when used with cloudflare and improve security](https://github.com/PrivateBin/docker-nginx-fpm-alpine/blob/76251acdcf0e928645fcc3e040bd7dc79eb2b200/etc/nginx/http.d/site.conf#L9-L22)
+- no automatic gzip compression of static text files
+- nginx, the webserver and [nginx unit](https://unit.nginx.org/) are not the same thing. "Unit is a lightweight and versatile application runtime [and] was created by nginx team members from scratch [...]."
+
+You can use a front end webserver that addresses these limitations or use the other images that use a full nginx webserver to offer these functions out of the box.
 
 ## Image variants
 
-This is the all-in-one image ([Docker Hub](https://hub.docker.com/r/privatebin/nginx-fpm-alpine/) / [GitHub](https://github.com/orgs/PrivateBin/packages/container/package/nginx-fpm-alpine)) that can be used with any storage backend supported by PrivateBin - file based storage, databases, Google Cloud or S3 Storage. We also offer dedicated images for each backend:
-- [Image for file based storage (Docker Hub](https://hub.docker.com/r/privatebin/fs) / [GitHub](https://github.com/orgs/PrivateBin/packages/container/package/fs))
-- [Image for PostgreSQL, MariaDB & MySQL (Docker Hub](https://hub.docker.com/r/privatebin/pdo) / [GitHub](https://github.com/orgs/PrivateBin/packages/container/package/pdo))
-- [Image for Google Cloud Storage (Docker Hub](https://hub.docker.com/r/privatebin/gcs) / [GitHub](https://github.com/orgs/PrivateBin/packages/container/package/gcs))
-- [Image for S3 Storage (Docker Hub](https://hub.docker.com/r/privatebin/s3) / [GitHub](https://github.com/orgs/PrivateBin/packages/container/package/s3))
+This is the all-in-one image ([Docker Hub](https://hub.docker.com/r/privatebin/unit-alpine) / [GitHub](https://github.com/orgs/PrivateBin/packages/container/package/unit-alpine)) that can be used with any storage backend supported by PrivateBin - file based storage, databases, Google Cloud or S3 Storage. We also offer dedicated images for each backend:
+- [Image for file based storage (Docker Hub](https://hub.docker.com/r/privatebin/unit-fs) / [GitHub](https://github.com/orgs/PrivateBin/packages/container/package/unit-fs))
+- [Image for PostgreSQL, MariaDB & MySQL (Docker Hub](https://hub.docker.com/r/privatebin/unit-pdo) / [GitHub](https://github.com/orgs/PrivateBin/packages/container/package/unit-pdo))
+- [Image for Google Cloud Storage (Docker Hub](https://hub.docker.com/r/privatebin/unit-gcs) / [GitHub](https://github.com/orgs/PrivateBin/packages/container/package/unit-gcs))
+- [Image for S3 Storage (Docker Hub](https://hub.docker.com/r/privatebin/unit-s3) / [GitHub](https://github.com/orgs/PrivateBin/packages/container/package/unit-s3))
 
 ## Image tags
 
@@ -18,8 +28,8 @@ All images contain a release version of PrivateBin and are offered with the foll
 - `latest` is an alias of the latest pushed image, usually the same as `nightly`, but excluding `edge`
 - `nightly` is the latest released PrivateBin version on an upgraded Alpine release image, including the latest changes from the docker image repository
 - `edge` is the latest released PrivateBin version on an upgraded Alpine edge image
-- `stable` contains the latest PrivateBin release on the latest tagged release of the [docker image git repository](https://github.com/PrivateBin/docker-nginx-fpm-alpine) - gets updated when important security fixes are released for Alpine or upon new Alpine releases
-- `1.5.1` contains PrivateBin version 1.5.1 on the latest tagged release of the [docker image git repository](https://github.com/PrivateBin/docker-nginx-fpm-alpine) - gets updated when important security fixes are released for Alpine or upon new Alpine releases, same as stable
+- `stable` contains the latest PrivateBin release on the latest tagged release of the [docker image git repository](https://github.com/PrivateBin/docker-unit-alpine) - gets updated when important security fixes are released for Alpine or upon new Alpine releases
+- `1.5.1` contains PrivateBin version 1.5.1 on the latest tagged release of the [docker image git repository](https://github.com/PrivateBin/docker-unit-alpine) - gets updated when important security fixes are released for Alpine or upon new Alpine releases, same as stable
 - `1.5.1-...` are provided for selecting specific, immutable images
 
 If you update your images automatically via pulls, the `stable`, `nightly` or `latest` are recommended. If you prefer to have control and reproducability or use a form of orchestration, the numeric tags are probably preferable. The `edge` tag offers a preview of software in future Alpine releases and serves as an early warning system to detect image build issues in these.
@@ -35,7 +45,7 @@ These images are hosted on the Docker Hub and the GitHub container registries:
 Assuming you have docker successfully installed and internet access, you can fetch and run the image from the docker hub like this:
 
 ```console
-$ docker run -d --restart="always" --read-only -p 8080:8080 -v $PWD/privatebin-data:/srv/data privatebin/nginx-fpm-alpine
+$ docker run -d --restart="always" --read-only -p 8080:8080 -v $PWD/privatebin-data:/srv/data privatebin/unit-alpine
 ```
 
 The parameters in detail:
@@ -53,14 +63,14 @@ The parameters in detail:
 In case you want to use a customized [conf.php](https://github.com/PrivateBin/PrivateBin/blob/master/cfg/conf.sample.php) file, for example one that has file uploads enabled or that uses a different template, add the file as a second volume:
 
 ```console
-$ docker run -d --restart="always" --read-only -p 8080:8080 -v $PWD/conf.php:/srv/cfg/conf.php:ro -v $PWD/privatebin-data:/srv/data privatebin/nginx-fpm-alpine
+$ docker run -d --restart="always" --read-only -p 8080:8080 -v $PWD/conf.php:/srv/cfg/conf.php:ro -v $PWD/privatebin-data:/srv/data privatebin/unit-alpine
 ```
 
 Note: The `Filesystem` data storage is supported out of the box. The image includes PDO modules for MySQL and PostgreSQL, required for the `Database` one, but you still need to keep the /srv/data persisted for the server salt and the traffic limiter when using a release before 1.4.0.
 
 ### Adjusting nginx or php-fpm settings
 
-You can attach your own `php.ini` or nginx configuration files to the folders `/etc/php81/conf.d/` and `/etc/nginx/http.d/` respectively. This would for example let you adjust the maximum size these two services accept for file uploads, if you need more then the default 10 MiB.
+You can attach your own `php.ini` the folder `/etc/php81/conf.d/`. You can [dynamically change the Nginx Unit configuration at runtime](https://unit.nginx.org/controlapi/) via it's Unix socket at `/run/control.unit.sock` - if you want to persist the Unit configuration changes, you need to attach a persistent volume to `/var/lib/unit`. This would for example let you adjust the maximum size the service accepts for file uploads, if you need more then the default 10 MiB.
 
 ### Timezone settings
 
@@ -99,7 +109,7 @@ spec:
         fsGroup: 82
       containers:
       - name: privatebin
-        image: privatebin/nginx-fpm-alpine:stable
+        image: privatebin/unit-alpine:stable
         ports:
         - containerPort: 8080
         env:
@@ -129,9 +139,6 @@ spec:
         - mountPath: /tmp
           name: tmp
           readOnly: False
-        - mountPath: /var/lib/nginx/tmp
-          name: nginx-cache
-          readOnly: False
   volumes:
     - name: run
       emptyDir:
@@ -139,8 +146,6 @@ spec:
     - name: tmp
       emptyDir:
         medium: "Memory"
-    - name: nginx-cache
-      emptyDir: {}
 ```
 
 Note that the volume `privatebin-data` has to be a shared, persisted volume across all nodes, i.e. on an NFS share. As of PrivateBin 1.4.0 it is no longer required, when using a database or Google Cloud Storage.
@@ -189,21 +194,19 @@ Options:
                    /srv/bin/../cfg/conf.php
 ```
 
-Note that in order to migrate between different storage backends you will need to use the all-in-one image called `privatebin/nginx-fpm-alpine`, as it comes with all the drivers and libraries for the different supported backends. When using the variant images, you will only be able to migrate within two backends of the same storage type, for example two filesystem paths or two database backends.
+Note that in order to migrate between different storage backends you will need to use the all-in-one image called `privatebin/unit-alpine`, as it comes with all the drivers and libraries for the different supported backends. When using the variant images, you will only be able to migrate within two backends of the same storage type, for example two filesystem paths or two database backends.
 
 ## Rolling your own image
 
 To reproduce the image, run:
 
 ```console
-$ docker build -t privatebin/nginx-fpm-alpine .
+$ docker build -t privatebin/unit-alpine .
 ```
 
 ### Behind the scenes
 
-The two processes, Nginx and php-fpm, are started by s6.
-
-Nginx is required to serve static files and caches them, too. Requests to the index.php (which is the only PHP file exposed in the document root at /var/www) are passed to php-fpm via a socket at /run/php-fpm.sock. All other PHP files and the data are stored under /srv.
+Nginx Unit serves static files and caches them, too. Requests to the index.php (which is the only PHP file exposed in the document root at /var/www) are also processed by it using PHP as a SAPI module. All other PHP files and the data are stored under /srv.
 
 The Nginx setup supports only HTTP, so make sure that you run a reverse proxy in front of this for HTTPS offloading and reducing the attack surface on your TLS stack. The Nginx in this image is set up to deflate/gzip text content.
 

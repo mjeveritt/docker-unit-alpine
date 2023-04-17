@@ -2,7 +2,7 @@
 
 name: Security-scan
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   schedule:
     - cron: '0 3 * * *' # everyday at 03:00 UTC
@@ -28,10 +28,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: master
-    
+
       # Runs a single command using the runners shell
       - name: Pull and start docker
-        run: docker run -d --read-only -p 8080:8080 privatebin/nginx-fpm-alpine
+        run: docker run -d --read-only -p 8080:8080 privatebin/unit-alpine
 
       # Run OWASP scan
       - name: OWASP ZAP Full Scan
@@ -40,7 +40,7 @@ jobs:
           # GitHub Token to create issues in the repository
           #token: # optional, default is ${{ github.token }}
           # Target URL
-          target: http://localhost:8080 
+          target: http://localhost:8080
           # Relative path of the ZAP configuration file
           rules_file_name: ".github/rules.tsv" # optional
           # The Docker file to be executed

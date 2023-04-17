@@ -18,12 +18,12 @@ jobs:
 
       - name: Build an image from Dockerfile
         run: |
-          docker build -t privatebin/nginx-fpm-alpine:${{ github.sha }} .
+          docker build -t privatebin/unit-alpine:${{ github.sha }} .
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'privatebin/nginx-fpm-alpine:${{ github.sha }}'
+          image-ref: 'privatebin/unit-alpine:${{ github.sha }}'
           format: 'template'
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'

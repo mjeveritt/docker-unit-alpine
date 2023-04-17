@@ -4,4 +4,4 @@
 
 ## Image variants
 
-This is an image optimized for the S3 Storage backend. Please see the [generic image](https://hub.docker.com/r/privatebin/nginx-fpm-alpine) for details on how to use this image, other images variants and the different tags.
+This is an image optimized for the S3 Storage backend. Please see the [generic image](https://hub.docker.com/r/privatebin/unit-alpine) for details on how to use this image, other images variants and the different tags.
