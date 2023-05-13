@@ -91,4 +91,4 @@ HEALTHCHECK CMD ["wget", "-qO/dev/null", "http://localhost:8080"]
 
 ENTRYPOINT ["/usr/sbin/unitd"]
 
-CMD ["--no-daemon", "--log", "/dev/stdout", "--tmp", "/tmp"]
+CMD ["--no-daemon", "--log", "/dev/stdout", "--tmpdir", "/tmp"]
