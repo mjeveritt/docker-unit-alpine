@@ -2,6 +2,9 @@
     "listeners": {
         "*:8080": {
             "pass": "routes"
+        },
+        "[::]:8080": {
+            "pass": "routes"
         }
     },
     "routes": [
