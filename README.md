@@ -68,9 +68,9 @@ $ docker run -d --restart="always" --read-only -p 8080:8080 -v $PWD/conf.php:/sr
 
 Note: The `Filesystem` data storage is supported out of the box. The image includes PDO modules for MySQL and PostgreSQL, required for the `Database` one, but you still need to keep the /srv/data persisted for the server salt and the traffic limiter when using a release before 1.4.0.
 
-### Adjusting nginx or php-fpm settings
+### Adjusting Nginx Unit or PHP settings
 
-You can attach your own `php.ini` the folder `/etc/php81/conf.d/`. You can [dynamically change the Nginx Unit configuration at runtime](https://unit.nginx.org/controlapi/) via it's Unix socket at `/run/control.unit.sock` - if you want to persist the Unit configuration changes, you need to attach a persistent volume to `/var/lib/unit`. This would for example let you adjust the maximum size the service accepts for file uploads, if you need more then the default 10 MiB.
+You can attach your own `php.ini` the folder `/etc/php/conf.d/`. You can [dynamically change the Nginx Unit configuration at runtime](https://unit.nginx.org/controlapi/) via it's Unix socket at `/run/control.unit.sock` - if you want to persist the Unit configuration changes, you need to attach a persistent volume to `/var/lib/unit`. This would for example let you adjust the maximum size the service accepts for file uploads, if you need more than the default 10 MiB.
 
 ### Timezone settings
 

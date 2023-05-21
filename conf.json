@@ -37,7 +37,7 @@
             "root": "/srv/",
             "script": "www/index.php",
             "options": {
-                "file": "/etc/php81/php.ini",
+                "file": "/etc/php/php.ini",
                 "admin": {
                     "assert.active": "Off",
                     "display_errors": "Off",
