@@ -17,6 +17,8 @@ LABEL org.opencontainers.image.authors=support@privatebin.org \
       org.opencontainers.image.licenses=zlib-acknowledgement \
       org.opencontainers.image.version=${RELEASE}
 
+COPY release.asc /tmp/
+
 RUN \
 # Prepare composer dependencies
     ALPINE_PACKAGES="$(echo ${ALPINE_PACKAGES} | sed 's/,/ /g')" ;\
@@ -40,10 +42,10 @@ RUN \
     && ln -s /etc/php /etc/php82 \
     && ln -s $(which php82) /usr/local/bin/php \
 # Install PrivateBin
+    && cd /tmp \
     && export GNUPGHOME="$(mktemp -d -p /tmp)" \
     && gpg2 --list-public-keys || /bin/true \
-    && wget -qO - https://privatebin.info/key/release.asc | gpg2 --import - \
-    && cd /tmp \
+    && gpg2 --import /tmp/release.asc \
     && if expr "${RELEASE}" : '[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}$' >/dev/null ; then \
          echo "getting release ${RELEASE}"; \
          wget -qO ${RELEASE}.tar.gz.asc ${PBURL}releases/download/${RELEASE}/PrivateBin-${RELEASE}.tar.gz.asc \
