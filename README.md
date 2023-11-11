@@ -8,11 +8,10 @@ This repository contains the Dockerfile and resources needed to create a docker 
 
 Compared to the [Nginx web server, php-fpm & Alpine images](https://github.com/PrivateBin/docker-nginx-fpm-alpine), these are smaller, but lack the following features:
 
-- missing [headers that mitigate problems when used with cloudflare and improve security](https://github.com/PrivateBin/docker-nginx-fpm-alpine/blob/76251acdcf0e928645fcc3e040bd7dc79eb2b200/etc/nginx/http.d/site.conf#L9-L22)
 - no automatic gzip compression of static text files
 - nginx, the webserver and [nginx unit](https://unit.nginx.org/) are not the same thing. "Unit is a lightweight and versatile application runtime [and] was created by nginx team members from scratch [...]."
 
-You can use a front end webserver that addresses these limitations or use the other images that use a full nginx webserver to offer these functions out of the box.
+You can use a front end webserver that addresses these limitations or use the other images that use a full nginx webserver, offering these functions out of the box.
 
 ## Image variants
 
