@@ -1,6 +1,6 @@
 FROM alpine:3.19.0
 
-ARG ALPINE_PACKAGES="php82-iconv php82-pdo_mysql php82-pdo_pgsql php82-openssl php82-simplexml"
+ARG ALPINE_PACKAGES="php83-iconv php83-pdo_mysql php83-pdo_pgsql php83-openssl php83-simplexml"
 ARG COMPOSER_PACKAGES="aws/aws-sdk-php google/cloud-storage"
 ARG PBURL=https://github.com/PrivateBin/PrivateBin/
 ARG RELEASE=1.6.1
@@ -24,23 +24,23 @@ RUN \
     ALPINE_PACKAGES="$(echo ${ALPINE_PACKAGES} | sed 's/,/ /g')" ;\
     ALPINE_COMPOSER_PACKAGES="" ;\
     if [ -n "${COMPOSER_PACKAGES}" ] ; then \
-        ALPINE_COMPOSER_PACKAGES="php82-phar" ;\
-        if [ -n "${ALPINE_PACKAGES##*php82-curl*}" ] ; then \
-            ALPINE_COMPOSER_PACKAGES="php82-curl ${ALPINE_COMPOSER_PACKAGES}" ;\
+        ALPINE_COMPOSER_PACKAGES="php83-phar" ;\
+        if [ -n "${ALPINE_PACKAGES##*php83-curl*}" ] ; then \
+            ALPINE_COMPOSER_PACKAGES="php83-curl ${ALPINE_COMPOSER_PACKAGES}" ;\
         fi ;\
-        if [ -n "${ALPINE_PACKAGES##*php82-mbstring*}" ] ; then \
-            ALPINE_COMPOSER_PACKAGES="php82-mbstring ${ALPINE_COMPOSER_PACKAGES}" ;\
+        if [ -n "${ALPINE_PACKAGES##*php83-mbstring*}" ] ; then \
+            ALPINE_COMPOSER_PACKAGES="php83-mbstring ${ALPINE_COMPOSER_PACKAGES}" ;\
         fi ;\
         RAWURL="$(echo ${PBURL} | sed s/github.com/raw.githubusercontent.com/)" ;\
     fi \
 # Install dependencies
     && apk upgrade --no-cache \
-    && apk add --no-cache gnupg git php82 php82-gd php82-opcache tzdata \
-        unit-php82 ${ALPINE_PACKAGES} ${ALPINE_COMPOSER_PACKAGES} \
+    && apk add --no-cache gnupg git php83 php83-gd php83-opcache tzdata \
+        unit-php83 ${ALPINE_PACKAGES} ${ALPINE_COMPOSER_PACKAGES} \
 # Stabilize php config location
-    && mv /etc/php82 /etc/php \
-    && ln -s /etc/php /etc/php82 \
-    && ln -s $(which php82) /usr/local/bin/php \
+    && mv /etc/php83 /etc/php \
+    && ln -s /etc/php /etc/php83 \
+    && ln -s $(which php83) /usr/local/bin/php \
 # Install PrivateBin
     && cd /tmp \
     && export GNUPGHOME="$(mktemp -d -p /tmp)" \
