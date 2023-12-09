@@ -48,7 +48,6 @@
             "options": {
                 "file": "/etc/php/php.ini",
                 "admin": {
-                    "assert.active": "Off",
                     "display_errors": "Off",
                     "log_errors": "On",
                     "upload_max_filesize": "15M",
