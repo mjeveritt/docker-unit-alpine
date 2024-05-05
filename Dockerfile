@@ -3,7 +3,7 @@ FROM alpine:3.19.1
 ARG ALPINE_PACKAGES="php83-iconv php83-pdo_mysql php83-pdo_pgsql php83-openssl php83-simplexml"
 ARG COMPOSER_PACKAGES="aws/aws-sdk-php google/cloud-storage"
 ARG PBURL=https://github.com/PrivateBin/PrivateBin/
-ARG RELEASE=1.7.1
+ARG RELEASE=1.7.2
 ARG UID=65534
 ARG GID=82
 
@@ -35,8 +35,8 @@ RUN \
     fi \
 # Install dependencies
     && apk upgrade --no-cache \
-    && apk add --no-cache gnupg git php83 php83-gd php83-opcache tzdata \
-        unit-php83 ${ALPINE_PACKAGES} ${ALPINE_COMPOSER_PACKAGES} \
+    && apk add --no-cache composer gnupg git php83 php83-ctype php83-gd \
+        php83-opcache tzdata unit-php83 ${ALPINE_PACKAGES} ${ALPINE_COMPOSER_PACKAGES} \
 # Stabilize php config location
     && mv /etc/php83 /etc/php \
     && ln -s /etc/php /etc/php83 \
@@ -56,20 +56,14 @@ RUN \
          git clone ${PBURL%%/}.git -b ${RELEASE}; \
          (cd $(basename ${PBURL}) && git archive --prefix ${RELEASE}/ --format tgz ${RELEASE} > /tmp/${RELEASE}.tar.gz); \
        fi \
-    && if [ -n "${COMPOSER_PACKAGES}" ] ; then \
-        wget -qO composer-installer.php https://getcomposer.org/installer \
-        && php composer-installer.php --install-dir=/usr/local/bin --filename=composer ;\
-    fi \
     && mkdir -p /srv/data /srv/www \
     && cd /srv/www \
     && tar -xzf /tmp/${RELEASE}.tar.gz --strip 1 \
     && if [ -n "${COMPOSER_PACKAGES}" ] ; then \
-        wget -q ${RAWURL}${RELEASE}/composer.json \
-        && wget -q ${RAWURL}${RELEASE}/composer.lock \
-        && composer remove --dev --no-update phpunit/phpunit \
+        composer remove --dev --no-update phpunit/phpunit \
         && composer require --no-update ${COMPOSER_PACKAGES} \
         && composer update --no-dev --optimize-autoloader \
-        rm composer.* /usr/local/bin/* ;\
+        rm /usr/local/bin/* ;\
     fi \
     && rm *.md cfg/conf.sample.php .htaccess* */.htaccess \
     && mv bin cfg lib tpl vendor /srv \
@@ -78,8 +72,8 @@ RUN \
     && chown -R ${UID}:${GID} /run /srv/* /var/lib/unit \
 # Clean up
     && gpgconf --kill gpg-agent \
-    && rm -rf /tmp/* \
-    && apk del --no-cache gnupg git ${ALPINE_COMPOSER_PACKAGES}
+    && rm -rf /tmp/* composer.* \
+    && apk del --no-cache composer gnupg git ${ALPINE_COMPOSER_PACKAGES}
 
 COPY --chown=${UID}:${GID} conf.json /var/lib/unit/
 
