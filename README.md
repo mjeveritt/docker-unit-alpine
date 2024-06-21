@@ -67,6 +67,45 @@ $ docker run -d --restart="always" --read-only -p 8080:8080 -v $PWD/conf.php:/sr
 
 Note: The `Filesystem` data storage is supported out of the box. The image includes PDO modules for MySQL and PostgreSQL, required for the `Database` one, but you still need to keep the /srv/data persisted for the server salt and the traffic limiter when using a release before 1.4.0.
 
+#### Environment variables
+
+The following variables do get passed down to the PHP application to support various scenarios. This allows changing some settings via the environment instead of a configuration file. Most of these relate to the storage backends:
+
+##### Amazon Web Services variables used by the S3 backend
+
+- `AWS_ACCESS_KEY_ID`
+- `AWS_CONTAINER_AUTHORIZATION_TOKEN`
+- `AWS_CONTAINER_CREDENTIALS_FULL_URI`
+- `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI`
+- `AWS_DEFAULT_REGION`
+- `AWS_PROFILE`
+- `AWS_ROLE_ARN`
+- `AWS_ROLE_SESSION_NAME`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_SESSION_TOKEN`
+- `AWS_STS_REGIONAL_ENDPOINTS`
+- `AWS_WEB_IDENTITY_TOKEN_FILE`
+- `AWS_SHARED_CREDENTIALS_FILE`
+
+##### Google Cloud variables used by the GCS backend
+- `GCLOUD_PROJECT`
+- `GOOGLE_APPLICATION_CREDENTIALS`
+- `GOOGLE_CLOUD_PROJECT`
+- `PRIVATEBIN_GCS_BUCKET`
+
+##### Custom backend settings
+
+The following variables are not used by default, but can be [enabled in your custom configuration file](https://github.com/PrivateBin/docker-nginx-fpm-alpine/issues/196#issuecomment-2163331528), to keep sensitive information out of it:
+
+- `STORAGE_HOST`
+- `STORAGE_LOGIN`
+- `STORAGE_PASSWORD`
+- `STORAGE_CONTAINER`
+
+##### Configuration folder
+
+- `CONFIG_PATH`
+
 ### Adjusting Nginx Unit or PHP settings
 
 You can attach your own `php.ini` the folder `/etc/php/conf.d/`. You can [dynamically change the Nginx Unit configuration at runtime](https://unit.nginx.org/controlapi/) via it's Unix socket at `/run/control.unit.sock` - if you want to persist the Unit configuration changes, you need to attach a persistent volume to `/var/lib/unit`. This would for example let you adjust the maximum size the service accepts for file uploads, if you need more than the default 10 MiB.
