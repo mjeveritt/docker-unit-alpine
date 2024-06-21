@@ -106,11 +106,7 @@ The following variables are not used by default, but can be [enabled in your cus
 
 - `CONFIG_PATH`
 
-### Adjusting Nginx Unit or PHP settings
-
-You can attach your own `php.ini` the folder `/etc/php/conf.d/`. You can [dynamically change the Nginx Unit configuration at runtime](https://unit.nginx.org/controlapi/) via it's Unix socket at `/run/control.unit.sock` - if you want to persist the Unit configuration changes, you need to attach a persistent volume to `/var/lib/unit`. This would for example let you adjust the maximum size the service accepts for file uploads, if you need more than the default 10 MiB.
-
-### Timezone settings
+##### Timezone settings
 
 The image supports the use of the following two environment variables to adjust the timezone. This is most useful to ensure the logs show the correct local time.
 
@@ -118,6 +114,10 @@ The image supports the use of the following two environment variables to adjust 
 - `PHP_TZ`
 
 Note: The application internally handles expiration of pastes based on a UNIX timestamp that is calculated based on the timezone set during its creation. Changing the PHP_TZ will affect this and leads to earlier (if the timezone is increased) or later (if it is decreased) expiration then expected.
+
+### Adjusting Nginx Unit or PHP settings
+
+You can attach your own `php.ini` the folder `/etc/php/conf.d/`. You can [dynamically change the Nginx Unit configuration at runtime](https://unit.nginx.org/controlapi/) via it's Unix socket at `/run/control.unit.sock` - if you want to persist the Unit configuration changes, you need to attach a persistent volume to `/var/lib/unit`. This would for example let you adjust the maximum size the service accepts for file uploads, if you need more than the default 10 MiB.
 
 ### Kubernetes deployment
 
