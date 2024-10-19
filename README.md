@@ -207,7 +207,7 @@ Options:
   -p, --purge       purge all expired pastes
   -s, --statistics  reads all stored pastes and comments and reports statistics
 
-docker exec -t privatebin migrate --help
+$ docker exec -t privatebin migrate --help
 migrate - Copy data between PrivateBin backends
 
 Usage:
@@ -225,9 +225,9 @@ Options:
   -h, --help       displays this help message
   -n               dry run, do not copy data
   -v               be verbose
-  <srcconfdir>     use storage backend configration from conf.php found in
+  <srcconfdir>     use storage backend configuration from conf.php found in
                    this directory as source
-  <dstconfdir>     optionally, use storage backend configration from conf.php
+  <dstconfdir>     optionally, use storage backend configuration from conf.php
                    found in this directory as destination; defaults to:
                    /srv/bin/../cfg/conf.php
 ```
